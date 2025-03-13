@@ -66,10 +66,10 @@ print(f"R² for Occupancy: {r2_occupancy:.2f}")
 
 ## Output:
 ```
-Mean Squared Error: 8.01
-R² Score: -1.75
+Mean Squared Error: 0.34
+R² Score: 0.74
 R² for House Price: 0.49
-R² for Occupancy: -4.00
+R² for Occupancy: 1.00
 ```
 
 
