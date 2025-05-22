@@ -8,86 +8,74 @@ To write a program to predict the price of the house and number of occupants in 
 2. Anaconda – Python 3.7 Installation / Jupyter notebook
 
 ## Algorithm
-Step 1: Load California housing data, select features and targets, and split into training and testing sets.
-
-Step 2: Scale both X (features) and Y (targets) using StandardScaler.
-
-Step 3: Use SGDRegressor wrapped in MultiOutputRegressor to train on the scaled training data.
-
-Step 4: Predict on test data, inverse transform the results, and calculate the mean squared error.
-
+```
+1.Data Preparation: Load the California housing dataset, extract features (first three columns) and targets (target variable and sixth column), and split the data into training and testing sets.
+2.Data Scaling: Standardize the feature and target data using StandardScaler to enhance model performance.
+3.Model Training: Create a multi-output regression model with SGDRegressor and fit it to the training data.
+4.Prediction and Evaluation: Predict values for the test set using the trained model, calculate the mean squared error, and print the predictions along with the squared error.
+```
 ## Program:
 ```
 /*
 Program to implement the multivariate linear regression model for predicting the price of the house and number of occupants in the house with SGD regressor.
 Developed by: P KEVIN
-RegisterNumber:  212224040159
+RegisterNumber: 212224040159
 */
 ```
+```
 import numpy as np
-
 from sklearn.datasets import fetch_california_housing
-
-from sklearn.linear_model import SGDRegressor
-
-from sklearn.multioutput import MultiOutputRegressor
-
 from sklearn.model_selection import train_test_split
-
-from sklearn.metrics import mean_squared_error
-
 from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import SGDRegressor
+from sklearn.multioutput import MultiOutputRegressor
+from sklearn.metrics import mean_squared_error, r2_score
 
 data = fetch_california_housing()
 
-x= data.data[:,:3]
+X = data.data[:, [0, 1, 2, 5, 7]]  # Features: MedInc, HouseAge, AveRooms, AveOccup, Population
+y = np.column_stack((data.target, data.data[:, 5]))  # Target: House Price, Occupancy
 
-y=np.column_stack((data.target,data.data[:,6]))
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-x_train, x_test, y_train,y_test = train_test_split(x,y, test_size = 0.2, random_state =42)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
 
-scaler_x = StandardScaler()
+sgd = SGDRegressor(max_iter=1000, tol=1e-3)
+multi_output_sgd = MultiOutputRegressor(sgd)
+multi_output_sgd.fit(X_train_scaled, y_train)
 
-scaler_y = StandardScaler()
+y_pred = multi_output_sgd.predict(X_test_scaled)
 
-x_train = scaler_x.fit_transform(x_train)
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
 
-x_test = scaler_x.fit_transform(x_test)
+print(f"Mean Squared Error: {mse:.2f}")
+print(f"R² Score: {r2:.2f}")
 
-y_train = scaler_y.fit_transform(y_train)
+r2_house_price = r2_score(y_test[:, 0], y_pred[:, 0])
+r2_occupancy = r2_score(y_test[:, 1], y_pred[:, 1])
 
-y_test = scaler_y.fit_transform(y_test)
+print(f"R² for House Price: {r2_house_price:.2f}")
+print(f"R² for Occupancy: {r2_occupancy:.2f}")
 
-sgd = SGDRegressor(max_iter=1000, tol = 1e-3)
+```
 
-multi_output_sgd= MultiOutputRegressor(sgd)
-
-multi_output_sgd.fit(x_train, y_train)
-
-y_pred =multi_output_sgd.predict(x_test)
-
-y_pred = scaler_y.inverse_transform(y_pred)
-
-y_test = scaler_y.inverse_transform(y_test)
-print(y_pred)
-
-[ 1.04860312, 35.69231257]
-[ 1.49909521, 35.72530255]
-[ 2.35760015, 35.50646978]
-...
-[ 4.47157887, 35.06594388]
-[ 1.70991815, 35.75406191]
-[ 1.79884624, 35.34680017]
-
-mse = mean_squared_error(y_test,y_pred)
-
-print("Mean Squared Error:",mse)
-
-print("\nPredictions:\n",y_pred[:5])
 
 
 ## Output:
-![Screenshot 2025-03-05 182832](https://github.com/user-attachments/assets/ea032c88-778d-4421-9af4-a1a84efa6d2b)
+```Predictions:
+ [[ 1.10294192, 35.91524355],
+ [ 1.51829697, 35.80348534],
+ [ 2.2781599 , 35.71878728],
+ ...,
+ [ 4.31784449, 35.02074527],
+ [ 1.70545882, 35.76972047],
+ [ 1.81947425, 35.71433187]]
+Squared Error: 2.6030095425883086
+```
+
 
 
 ## Result:
